@@ -3,6 +3,7 @@ import Schedule from './components/Schedule';
 import TodoPanel from './components/TodoPanel';
 import RoutinePanel from './components/RoutinePanel';
 import QuickLinks from './components/QuickLinks';
+import ServiceStatus from './components/ServiceStatus';
 import Onboarding from './components/Onboarding';
 import { useChromeStorage } from './hooks/useChromeStorage';
 import {
@@ -221,6 +222,7 @@ export default function App() {
         />
 
         <section className="col-links">
+          <ServiceStatus />
           <QuickLinks isOnboarding={isOnboarding} />
         </section>
       </main>

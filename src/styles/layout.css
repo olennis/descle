@@ -106,6 +106,10 @@ body {
   padding: 24px 32px 24px 24px;
 }
 
+.col-links .section + .section {
+  margin-top: 28px;
+}
+
 .section {
   background: transparent;
   border: none;
@@ -259,7 +263,7 @@ body {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 12px 14px;
+  padding: 10px 12px;
   border: none;
   font-size: 13px;
   color: var(--color-tertiary);
@@ -271,9 +275,9 @@ body {
   display: none;
   align-items: center;
   justify-content: center;
-  width: 24px;
-  height: 24px;
-  margin-right: 10px;
+  width: 22px;
+  height: 22px;
+  margin-right: 8px;
   font-size: 16px;
   color: var(--color-text-muted);
   cursor: pointer;
@@ -311,6 +315,85 @@ body {
   background: var(--color-hover-bg);
   border-color: var(--color-hover-border);
   color: var(--color-primary);
+}
+
+/* ── service status ───────────────────────────────── */
+
+.service-status-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 8px;
+}
+
+.service-status-card {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: 8px minmax(0, 1fr);
+  gap: 10px;
+  align-items: center;
+  padding: 12px;
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-small);
+  color: var(--color-text);
+  text-decoration: none;
+  background: var(--color-white);
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.service-status-card:hover {
+  background: var(--color-hover-bg);
+  border-color: var(--color-hover-border);
+}
+
+.service-status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--color-success);
+}
+
+.service-status-main {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.service-status-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.service-status-description,
+.service-status-meta {
+  font-size: 11px;
+  color: var(--color-text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.service-status-meta {
+  grid-column: 2;
+}
+
+.service-status-card.is-minor .service-status-dot,
+.service-status-card.is-maintenance .service-status-dot {
+  background: var(--color-p1);
+}
+
+.service-status-card.is-major .service-status-dot,
+.service-status-card.is-critical .service-status-dot,
+.service-status-card.is-error .service-status-dot {
+  background: var(--color-p0);
+}
+
+.service-status-card.is-loading .service-status-dot {
+  background: var(--color-text-muted);
 }
 
 /* ── add-bookmark form ────────────────────────────── */

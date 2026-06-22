@@ -421,8 +421,8 @@ const groupTitleStyle: React.CSSProperties = {
 };
 
 const linkListStyle: React.CSSProperties = {
-  display: 'flex',
-  flexDirection: 'column',
+  display: 'grid',
+  gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))',
   gap: 6,
 };
 
@@ -452,5 +452,4 @@ const emptyStyle: React.CSSProperties = {
   padding: '24px 0',
   textAlign: 'center',
 };
-
 
