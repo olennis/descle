@@ -100,6 +100,13 @@ async function getAuthToken(interactive = false) {
   });
 }
 
+async function removeCachedToken(token) {
+  if (!token) return;
+  await new Promise((resolve) =>
+    chrome.identity.removeCachedAuthToken({ token }, resolve)
+  );
+}
+
 async function fetchAndCacheUserEmail(token) {
   try {
     const response = await fetch(
@@ -129,17 +136,9 @@ async function fetchAndCacheCalendar() {
     try {
       token = await getAuthToken(false);
     } catch {
-      // Token expired — try refresh
-      await new Promise((resolve) =>
-        chrome.identity.removeCachedAuthToken({ token: '' }, resolve)
-      );
-      try {
-        token = await getAuthToken(false);
-      } catch {
-        // Can't auto-refresh, user needs to reconnect
-        await chrome.storage.local.set({ oauthConnected: false });
-        return;
-      }
+      // A temporary account/network error must not turn into a logout.
+      // Chrome Identity will try again on the next scheduled refresh.
+      return;
     }
 
     if (!token) return;
@@ -156,15 +155,24 @@ async function fetchAndCacheCalendar() {
       maxResults: '20',
     });
 
-    const response = await fetch(
-      `${CALENDAR_API}/calendars/primary/events?${params}`,
-      { headers: { Authorization: `Bearer ${token}` } }
-    );
+    const calendarUrl = `${CALENDAR_API}/calendars/primary/events?${params}`;
+    const requestCalendar = (accessToken) => fetch(calendarUrl, {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    });
+
+    let response = await requestCalendar(token);
 
     if (response.status === 401) {
-      // Token expired mid-flight
-      await chrome.storage.local.set({ oauthConnected: false });
-      return;
+      // Remove the actual rejected token, ask Chrome Identity for a fresh one,
+      // then retry once. Keep the user's connected preference on transient errors.
+      await removeCachedToken(token);
+      try {
+        token = await getAuthToken(false);
+      } catch {
+        return;
+      }
+      if (!token) return;
+      response = await requestCalendar(token);
     }
 
     if (!response.ok) return;
@@ -182,6 +190,7 @@ async function fetchAndCacheCalendar() {
       }));
 
     await chrome.storage.local.set({
+      oauthConnected: true,
       calendarEvents: events,
       calendarLastFetched: Date.now(),
     });

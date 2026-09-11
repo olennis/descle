@@ -1,12 +1,12 @@
 # Descle
 
 Chrome 새 탭을 대체하는 glanceable 대시보드 확장 프로그램.  
-오늘의 일정, 할 일, 북마크를 한 화면에서 확인한다.
+오늘의 일정, PDS 기록, 북마크를 한 화면에서 확인한다.
 
 ## Features
 
 - **Schedule** — Google Calendar 연동. 현재 진행 중/다음 일정 하이라이트, Google Meet 바로가기
-- **Todo** — 우선순위(P0/P1/P2) 기반 할 일 관리, 완료율 인사이트
+- **PDS Diary** — 날짜별 Plan · Do · See 기록과 하루 회고
 - **Bookmarks** — 브라우저 북마크 폴더 자동 탐색, 검색, 추가/삭제
 - **Resizable columns** — 드래그로 3컬럼 비율 조정, localStorage에 저장
 - **Dark mode** — system / light / dark 3-way 토글, OS preference 실시간 반영
@@ -52,7 +52,7 @@ src/
 ├── types.ts             # 공통 타입 정의
 ├── components/
 │   ├── Schedule.tsx     # 캘린더 일정 패널
-│   ├── TodoPanel.tsx    # 할 일 패널
+│   ├── PdsDiary.tsx     # PDS 다이어리
 │   └── QuickLinks.tsx   # 북마크 패널
 ���── hooks/
 │   └── useChromeStorage.ts
@@ -69,9 +69,13 @@ src/
 | Permission | 용도 |
 |------------|------|
 | `identity` | Google OAuth2 로그인 |
-| `storage` | 할 일, 일정 캐시, 설정 저장 |
+| `storage` | PDS 기록, 일정 캐시, 설정 저장 |
 | `alarms` | 백그라운드 캘린더 동기화 |
 | `bookmarks` | 북마크 읽기/쓰기 |
+
+## Publishing
+
+`main` 브랜치 push 시 Chrome Web Store에 자동 업로드하고 심사를 요청할 수 있습니다. 최초 1회 설정은 [자동 배포 가이드](docs/web-store-publishing.md)를 참고하세요.
 
 ## License
 

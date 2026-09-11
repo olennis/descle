@@ -1,0 +1,67 @@
+name: Publish to Chrome Web Store
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: chrome-web-store-publish
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    name: Build and submit for review
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment: chrome-web-store
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build extension
+        run: npm run build
+
+      - name: Set unique Web Store version
+        env:
+          RELEASE_RUN_NUMBER: ${{ github.run_number }}
+          RELEASE_RUN_ATTEMPT: ${{ github.run_attempt }}
+          RELEASE_SHA: ${{ github.sha }}
+        run: node scripts/set-web-store-version.mjs
+
+      - name: Package extension
+        working-directory: dist
+        run: zip -qr ../descle-web-store.zip .
+
+      # Authenticate only after build/package so npm scripts never receive credentials.
+      - name: Authenticate to Google Cloud
+        id: google-auth
+        uses: google-github-actions/auth@v3
+        with:
+          credentials_json: ${{ secrets.CWS_SERVICE_ACCOUNT_JSON }}
+          service_account: ${{ secrets.CWS_SERVICE_ACCOUNT_EMAIL }}
+          create_credentials_file: false
+          token_format: access_token
+          access_token_scopes: https://www.googleapis.com/auth/chromewebstore
+
+      - name: Upload and submit for review
+        env:
+          CWS_ACCESS_TOKEN: ${{ steps.google-auth.outputs.access_token }}
+          CWS_PUBLISHER_ID: ${{ secrets.CWS_PUBLISHER_ID }}
+          CWS_EXTENSION_ID: ${{ secrets.CWS_EXTENSION_ID }}
+          CWS_ZIP_PATH: descle-web-store.zip
+        run: node scripts/publish-chrome-web-store.mjs

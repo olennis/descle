@@ -17,6 +17,14 @@ export interface Routine {
   streak: number;                    // lastCompletedDate 기준 연속 달성 일수
 }
 
+export interface PdsEntry {
+  date: string;                       // 'YYYY-MM-DD' (local)
+  plan: string;
+  do: string;
+  see: string;
+  updatedAt: number;
+}
+
 export interface LinkItem {
   id: string;
   name: string;

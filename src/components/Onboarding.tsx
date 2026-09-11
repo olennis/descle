@@ -7,9 +7,9 @@ const STEPS = [
     description: 'Google Calendar와 연동하여 오늘의 일정을 한눈에 확인하세요.',
   },
   {
-    target: '.col-todo',
-    title: 'Todo',
-    description: '할 일을 우선순위별로 관리하고 완료 상태를 추적하세요.',
+    target: '.col-diary',
+    title: 'PDS Diary',
+    description: '오늘의 계획과 실행, 회고를 한곳에 기록하며 하루의 흐름을 정리하세요.',
   },
   {
     target: '.col-links',

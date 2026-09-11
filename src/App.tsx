@@ -1,7 +1,6 @@
 import { useRef, useCallback, useState, useEffect } from 'react';
 import Schedule from './components/Schedule';
-import TodoPanel from './components/TodoPanel';
-import RoutinePanel from './components/RoutinePanel';
+import PdsDiary from './components/PdsDiary';
 import QuickLinks from './components/QuickLinks';
 import ServiceStatus from './components/ServiceStatus';
 import Onboarding from './components/Onboarding';
@@ -211,9 +210,8 @@ export default function App() {
           onMouseDown={() => onMouseDown('left')}
         />
 
-        <section className="col-todo">
-          <TodoPanel isOnboarding={isOnboarding} />
-          <RoutinePanel isOnboarding={isOnboarding} />
+        <section className="col-diary">
+          <PdsDiary isOnboarding={isOnboarding} />
         </section>
 
         <div

@@ -1,8 +1,9 @@
-import { Todo, LinkGroup, CalendarEvent, Routine, DEFAULT_LINK_GROUPS } from '../types';
+import { Todo, LinkGroup, CalendarEvent, Routine, PdsEntry, DEFAULT_LINK_GROUPS } from '../types';
 
 const STORAGE_KEYS = {
   todos: 'todos',
   routines: 'routines',
+  pdsEntries: 'pdsEntries',
   linkGroups: 'linkGroups',
   calendarEvents: 'calendarEvents',
   calendarLastFetched: 'calendarLastFetched',
@@ -28,6 +29,15 @@ export async function getRoutines(): Promise<Routine[]> {
 
 export async function setRoutines(routines: Routine[]): Promise<void> {
   await chrome.storage.local.set({ [STORAGE_KEYS.routines]: routines });
+}
+
+export async function getPdsEntries(): Promise<Record<string, PdsEntry>> {
+  const result = await chrome.storage.local.get(STORAGE_KEYS.pdsEntries);
+  return result[STORAGE_KEYS.pdsEntries] ?? {};
+}
+
+export async function setPdsEntries(entries: Record<string, PdsEntry>): Promise<void> {
+  await chrome.storage.local.set({ [STORAGE_KEYS.pdsEntries]: entries });
 }
 
 export async function getLinkGroups(): Promise<LinkGroup[]> {
