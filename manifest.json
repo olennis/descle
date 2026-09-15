@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Descle",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Glanceable new tab dashboard — schedule, todos, quick links at a glance",
   "permissions": ["identity", "storage", "alarms", "bookmarks"],
   "host_permissions": [

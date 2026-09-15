@@ -130,7 +130,7 @@ export default function App() {
         <div className="top-bar-left">
           <span className="top-bar-brand">Descle</span>
           <span className="top-bar-separator">/</span>
-          <span className="top-bar-breadcrumb">DayView Dashboard</span>
+          <span className="top-bar-breadcrumb">Descle</span>
         </div>
         <div className="top-bar-right">
           {profileImage ? (
