@@ -1,13 +1,13 @@
 # Descle
 
 Chrome 새 탭을 대체하는 glanceable 대시보드 확장 프로그램.  
-오늘의 일정, PDS 기록, 북마크를 한 화면에서 확인한다.
+오늘의 일정·북마크, 시간별 계획/실행, Jira·GitHub 현황을 한 화면에서 확인한다.
 
 ## Features
 
-- **Schedule** — Google Calendar 연동. 현재 진행 중/다음 일정 하이라이트, Google Meet 바로가기
-- **PDS Diary** — 날짜별 Plan · Do · See 기록과 하루 회고
-- **Bookmarks** — 브라우저 북마크 폴더 자동 탐색, 검색, 추가/삭제
+- **Schedule + Bookmarks** (좌) — Google Calendar 일정과 브라우저 북마크 링크 모아보기
+- **Time Table** (가운데) — 08~19시 시간별 계획(Plan) / 실행(Do) 캘린더. 오늘의 Google Calendar 일정을 계획 칸에 함께 표시
+- **Dev Dashboard** (우) — GitHub·Claude 서비스 상태 + Jira / GitHub / Sentry 탭. Jira 내 이슈, GitHub 내 PR·리뷰 요청(PR 제목의 Jira 키로 이슈 ↔ PR 연결), Sentry 최근 24시간 미해결 이슈
 - **Resizable columns** — 드래그로 3컬럼 비율 조정, localStorage에 저장
 - **Dark mode** — system / light / dark 3-way 토글, OS preference 실시간 반영
 
@@ -52,13 +52,16 @@ src/
 ├── types.ts             # 공통 타입 정의
 ├── components/
 │   ├── Schedule.tsx     # 캘린더 일정 패널
-│   ├── PdsDiary.tsx     # PDS 다이어리
-│   └── QuickLinks.tsx   # 북마크 패널
+│   ├── QuickLinks.tsx   # 북마크 패널
+│   ├── TimeTable.tsx    # 시간별 계획/실행 타임테이블
+│   ├── ServiceStatus.tsx# 서비스 상태
+│   └── DevDashboard.tsx # Jira · GitHub · Sentry 대시보드
 ���── hooks/
 │   └── useChromeStorage.ts
 ├── services/
 │   ├── storage.ts       # chrome.storage 래퍼
-│   └── calendar.ts      # 일정 유틸 함수
+│   ├── calendar.ts      # 일정 유틸 함수
+│   └── devDashboard.ts  # Jira / GitHub / Sentry API
 └── styles/
     ├── tokens.css       # 디자인 토큰 (light + dark)
     └── layout.css       # 글로벌 레이아웃
@@ -72,6 +75,7 @@ src/
 | `storage` | PDS 기록, 일정 캐시, 설정 저장 |
 | `alarms` | 백그라운드 캘린더 동기화 |
 | `bookmarks` | 북마크 읽기/쓰기 |
+| `api.github.com`, `*.atlassian.net`, `sentry.io` (optional) | Dev 대시보드. 연동 저장 시에만 요청 |
 
 ## Publishing
 

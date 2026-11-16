@@ -1,9 +1,16 @@
-import { Todo, LinkGroup, CalendarEvent, Routine, PdsEntry, DEFAULT_LINK_GROUPS } from '../types';
+import {
+  Todo, LinkGroup, CalendarEvent, Routine, PdsEntry, TimeTableEntry, DevDashboardConfig,
+  DEFAULT_LINK_GROUPS,
+} from '../types';
+import type { DevDashboardData } from './devDashboard';
 
 const STORAGE_KEYS = {
   todos: 'todos',
   routines: 'routines',
   pdsEntries: 'pdsEntries',
+  timeTableEntries: 'timeTableEntries',
+  devDashboardConfig: 'devDashboardConfig',
+  devDashboardCache: 'devDashboardCache',
   linkGroups: 'linkGroups',
   calendarEvents: 'calendarEvents',
   calendarLastFetched: 'calendarLastFetched',
@@ -38,6 +45,43 @@ export async function getPdsEntries(): Promise<Record<string, PdsEntry>> {
 
 export async function setPdsEntries(entries: Record<string, PdsEntry>): Promise<void> {
   await chrome.storage.local.set({ [STORAGE_KEYS.pdsEntries]: entries });
+}
+
+export async function getTimeTableEntries(): Promise<Record<string, TimeTableEntry>> {
+  const result = await chrome.storage.local.get(STORAGE_KEYS.timeTableEntries);
+  return result[STORAGE_KEYS.timeTableEntries] ?? {};
+}
+
+export async function setTimeTableEntries(entries: Record<string, TimeTableEntry>): Promise<void> {
+  await chrome.storage.local.set({ [STORAGE_KEYS.timeTableEntries]: entries });
+}
+
+export const EMPTY_DEV_DASHBOARD_CONFIG: DevDashboardConfig = {
+  githubToken: '',
+  jiraDomain: '',
+  jiraEmail: '',
+  jiraToken: '',
+  sentryHost: 'sentry.io',
+  sentryOrg: '',
+  sentryToken: '',
+};
+
+export async function getDevDashboardConfig(): Promise<DevDashboardConfig> {
+  const result = await chrome.storage.local.get(STORAGE_KEYS.devDashboardConfig);
+  return { ...EMPTY_DEV_DASHBOARD_CONFIG, ...(result[STORAGE_KEYS.devDashboardConfig] ?? {}) };
+}
+
+export async function setDevDashboardConfig(config: DevDashboardConfig): Promise<void> {
+  await chrome.storage.local.set({ [STORAGE_KEYS.devDashboardConfig]: config });
+}
+
+export async function getDevDashboardCache(): Promise<DevDashboardData | null> {
+  const result = await chrome.storage.local.get(STORAGE_KEYS.devDashboardCache);
+  return result[STORAGE_KEYS.devDashboardCache] ?? null;
+}
+
+export async function setDevDashboardCache(data: DevDashboardData | null): Promise<void> {
+  await chrome.storage.local.set({ [STORAGE_KEYS.devDashboardCache]: data });
 }
 
 export async function getLinkGroups(): Promise<LinkGroup[]> {

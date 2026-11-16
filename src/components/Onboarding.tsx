@@ -3,18 +3,18 @@ import { useState, useEffect, useCallback } from 'react';
 const STEPS = [
   {
     target: '.col-schedule',
-    title: 'Schedule',
-    description: 'Google Calendar와 연동하여 오늘의 일정을 한눈에 확인하세요.',
+    title: 'Schedule & Bookmarks',
+    description: 'Google Calendar 일정과 크롬 북마크 링크를 한곳에서 확인하고 빠르게 접근하세요.',
   },
   {
-    target: '.col-diary',
-    title: 'PDS Diary',
-    description: '오늘의 계획과 실행, 회고를 한곳에 기록하며 하루의 흐름을 정리하세요.',
+    target: '.col-timetable',
+    title: 'Time Table',
+    description: '08시부터 19시까지 시간별 계획과 실제 실행을 나란히 기록하며 하루의 흐름을 비교하세요.',
   },
   {
-    target: '.col-links',
-    title: 'Bookmark',
-    description: '크롬 북마크를 기반으로 자주 방문하는 사이트를 그룹별로 정리하고 빠르게 접근하세요.',
+    target: '.col-dashboard',
+    title: 'Dev Dashboard',
+    description: '서비스 상태와 함께 Jira 이슈, GitHub PR·리뷰 요청을 한눈에 확인하세요.',
   },
 ];
 

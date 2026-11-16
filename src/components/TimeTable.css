@@ -1,0 +1,312 @@
+.timetable {
+  width: min(100%, 860px);
+  margin: 0 auto;
+}
+
+.tt-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 20px;
+}
+
+.tt-eyebrow {
+  margin-bottom: 7px;
+  color: var(--color-primary);
+  font-family: var(--font-headline);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+}
+
+.tt-date {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  color: var(--color-text);
+  font-family: var(--font-headline);
+  font-size: clamp(24px, 2.4vw, 32px);
+  line-height: 1.2;
+}
+
+.tt-date small {
+  color: var(--color-text-muted);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+}
+
+.tt-date-controls {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px;
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  background: var(--color-card-bg);
+}
+
+.tt-date-controls button {
+  display: grid;
+  place-items: center;
+  height: 30px;
+  min-width: 30px;
+  padding: 0;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  font-family: var(--font-body);
+  transition: background 0.15s, color 0.15s;
+}
+
+.tt-date-controls button:hover:not(:disabled) {
+  background: var(--color-hover-bg);
+  color: var(--color-primary);
+}
+
+.tt-date-controls button:disabled {
+  cursor: default;
+  opacity: 0.42;
+}
+
+.tt-date-controls svg {
+  width: 17px;
+  height: 17px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 2;
+}
+
+.tt-date-controls .tt-today-button {
+  min-width: 44px;
+  padding: 0 8px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* ── board: 공통 시간축 + PLAN / DO 두 개의 캘린더 ── */
+
+.tt-board {
+  display: flex;
+  flex-direction: column;
+}
+
+.tt-row {
+  display: grid;
+  grid-template-columns: 52px minmax(0, 1fr) minmax(0, 1fr);
+  column-gap: 12px;
+}
+
+
+.tt-track-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: 12px 12px 0 0;
+  border-bottom: 0;
+  background: var(--color-card-bg);
+}
+
+.tt-track-letter {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 8px;
+  background: var(--color-current-bg);
+  color: var(--color-primary);
+  font-family: var(--font-headline);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.tt-track-title.is-do .tt-track-letter {
+  background: var(--color-tag-review-bg);
+  color: var(--color-tag-review-text);
+}
+
+.tt-track-title strong {
+  color: var(--color-text);
+  font-family: var(--font-headline);
+  font-size: 13px;
+  letter-spacing: 0.05em;
+}
+
+.tt-track-title small {
+  color: var(--color-text-muted);
+  font-size: 12px;
+}
+
+.tt-track-count {
+  margin-left: auto;
+  color: var(--color-text-muted);
+  font-size: 11px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.tt-hour {
+  padding-top: 11px;
+  color: var(--color-text-muted);
+  font-size: 12px;
+  font-weight: 500;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.tt-cell {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 3px;
+  min-height: 42px;
+  padding: 4px 8px;
+  border-left: 1px solid var(--color-border);
+  border-right: 1px solid var(--color-border);
+  border-top: 1px solid var(--color-border-light);
+  background: var(--color-card-bg);
+  transition: background 0.15s;
+}
+
+.tt-row:last-child .tt-cell {
+  border-bottom: 1px solid var(--color-border);
+  border-radius: 0 0 12px 12px;
+}
+
+.tt-cell:focus-within {
+  background: var(--color-hover-bg);
+}
+
+.tt-cell input {
+  width: 100%;
+  padding: 6px 4px;
+  border: 0;
+  outline: none;
+  background: transparent;
+  color: var(--color-text);
+  font-family: var(--font-body);
+  font-size: 13px;
+}
+
+.tt-cell input::placeholder {
+  color: transparent;
+}
+
+.tt-cell:hover input::placeholder,
+.tt-cell input:focus::placeholder {
+  color: var(--color-text-muted);
+}
+
+.tt-cell input:disabled {
+  cursor: wait;
+}
+
+.tt-cell.is-do input {
+  padding-right: 30px;
+}
+
+.tt-event {
+  align-self: flex-start;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin-top: 4px;
+  padding: 2px 8px;
+  border-radius: 6px;
+  background: var(--color-current-bg);
+  color: var(--color-accent);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.tt-copy {
+  position: absolute;
+  top: 50%;
+  right: 8px;
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: 1px solid var(--color-border-light);
+  border-radius: 6px;
+  background: var(--color-card-bg);
+  color: var(--color-text-muted);
+  cursor: pointer;
+  opacity: 0;
+  transform: translateY(-50%);
+  transition: opacity 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.tt-row:hover .tt-copy {
+  opacity: 1;
+}
+
+.tt-copy:hover {
+  border-color: var(--color-hover-border);
+  color: var(--color-tag-review-text);
+}
+
+.tt-copy svg {
+  width: 13px;
+  height: 13px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 2.5;
+}
+
+/* 지난 시간 */
+.tt-row.is-past .tt-hour {
+  color: var(--color-timeline-past);
+}
+
+.tt-row.is-past .tt-cell.is-plan input {
+  color: var(--color-text-secondary);
+}
+
+/* 현재 시간 하이라이트 */
+.tt-row.is-now .tt-hour {
+  color: var(--color-accent);
+  font-weight: 700;
+}
+
+.tt-row.is-now .tt-cell {
+  background: var(--color-current-bg);
+  box-shadow: inset 3px 0 0 var(--color-current-border);
+}
+
+.tt-footer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 16px 0 4px;
+  color: var(--color-text-muted);
+  font-size: 11px;
+}
+
+.tt-saved-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--color-success);
+}
+
+@media (max-width: 980px) {
+  .tt-header {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 14px;
+  }
+}

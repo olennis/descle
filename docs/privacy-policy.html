@@ -23,10 +23,10 @@
 </head>
 <body>
   <h1>Descle Privacy Policy</h1>
-  <p class="updated">Last updated: 2026-05-11</p>
+  <p class="updated">Last updated: 2026-11-16</p>
 
   <h2>1. Overview</h2>
-  <p>Descle is a Chrome extension that replaces the new tab page with a dashboard displaying your schedule, todos, and bookmarks. This policy explains what data we access, how we use it, and how it is stored.</p>
+  <p>Descle is a Chrome extension that replaces the new tab page with a dashboard displaying your schedule, hourly plan/execution time table, bookmarks, and optional developer-service summaries (Jira, GitHub, Sentry). This policy explains what data we access, how we use it, and how it is stored.</p>
 
   <h2>2. Data We Access</h2>
   <table>
@@ -34,7 +34,11 @@
     <tr><td>identity</td><td>Google account email, profile image</td><td>Google Calendar authentication</td></tr>
     <tr><td>identity (OAuth)</td><td>Google Calendar events (read-only)</td><td>Display today's schedule</td></tr>
     <tr><td>bookmarks</td><td>Chrome bookmark titles and URLs</td><td>Display bookmarks in the dashboard</td></tr>
-    <tr><td>storage</td><td>User-created todos, preferences</td><td>Persist settings across sessions</td></tr>
+    <tr><td>storage</td><td>User-created time table entries, preferences, and access tokens you enter for optional integrations</td><td>Persist data and settings across sessions</td></tr>
+    <tr><td>Host access: githubstatus.com, status.claude.com</td><td>Public service status</td><td>Display service status</td></tr>
+    <tr><td>Optional host access: api.github.com</td><td>Your open pull requests and review requests</td><td>GitHub dashboard (only if you connect it)</td></tr>
+    <tr><td>Optional host access: *.atlassian.net</td><td>Unresolved Jira issues assigned to you</td><td>Jira dashboard (only if you connect it)</td></tr>
+    <tr><td>Optional host access: sentry.io</td><td>Unresolved issues in your Sentry organization</td><td>Sentry dashboard (only if you connect it)</td></tr>
     <tr><td>alarms</td><td>None</td><td>Periodic calendar data refresh</td></tr>
   </table>
 
@@ -42,7 +46,7 @@
   <p>All data is stored <strong>locally on your device</strong> using Chrome's built-in storage API (<code>chrome.storage.local</code>). No data is transmitted to or stored on any external server.</p>
 
   <h2>4. Third-Party Services</h2>
-  <p>Descle communicates only with Google's API servers to retrieve your calendar data. This communication occurs directly between your browser and Google. We do not operate any intermediary servers.</p>
+  <p>Descle communicates with Google's API servers to retrieve your calendar data, and with public status pages (githubstatus.com, status.claude.com). If you choose to connect them, it also communicates with GitHub (api.github.com), your Jira Cloud site (*.atlassian.net), and Sentry (sentry.io) using the access tokens you provide. Optional host permissions are requested only when you save an integration. All communication occurs directly between your browser and these services. We do not operate any intermediary servers.</p>
 
   <h2>5. Data Sharing</h2>
   <p>We do not collect, sell, share, or transfer any user data to third parties.</p>
@@ -53,6 +57,7 @@
     <li>Clear the extension's storage</li>
     <li>Uninstall the extension</li>
     <li>Disconnect your Google account from the extension</li>
+    <li>Remove integration tokens from the dashboard settings</li>
   </ul>
 
   <h2>7. User Control</h2>

@@ -1,8 +1,9 @@
 import { useRef, useCallback, useState, useEffect } from 'react';
 import Schedule from './components/Schedule';
-import PdsDiary from './components/PdsDiary';
+import TimeTable from './components/TimeTable';
 import QuickLinks from './components/QuickLinks';
 import ServiceStatus from './components/ServiceStatus';
+import DevDashboard from './components/DevDashboard';
 import Onboarding from './components/Onboarding';
 import { useChromeStorage } from './hooks/useChromeStorage';
 import {
@@ -203,6 +204,7 @@ export default function App() {
       >
         <section className="col-schedule">
           <Schedule isOnboarding={isOnboarding} />
+          <QuickLinks isOnboarding={isOnboarding} />
         </section>
 
         <div
@@ -210,8 +212,8 @@ export default function App() {
           onMouseDown={() => onMouseDown('left')}
         />
 
-        <section className="col-diary">
-          <PdsDiary isOnboarding={isOnboarding} />
+        <section className="col-timetable">
+          <TimeTable isOnboarding={isOnboarding} />
         </section>
 
         <div
@@ -219,9 +221,9 @@ export default function App() {
           onMouseDown={() => onMouseDown('right')}
         />
 
-        <section className="col-links">
+        <section className="col-dashboard">
           <ServiceStatus />
-          <QuickLinks isOnboarding={isOnboarding} />
+          <DevDashboard isOnboarding={isOnboarding} />
         </section>
       </main>
 

@@ -1,12 +1,18 @@
 {
   "manifest_version": 3,
   "name": "Descle",
-  "version": "1.0.5",
-  "description": "Glanceable new tab dashboard — schedule, todos, quick links at a glance",
+  "version": "1.0.6",
+  "description": "Glanceable new tab dashboard — schedule, time table, bookmarks, Jira, GitHub & Sentry at a glance",
   "permissions": ["identity", "storage", "alarms", "bookmarks"],
   "host_permissions": [
     "https://www.githubstatus.com/*",
     "https://status.claude.com/*"
+  ],
+  "optional_host_permissions": [
+    "https://api.github.com/*",
+    "https://*.atlassian.net/*",
+    "https://sentry.io/*",
+    "https://*.sentry.io/*"
   ],
   "chrome_url_overrides": {
     "newtab": "newtab.html"

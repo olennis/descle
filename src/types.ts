@@ -25,6 +25,23 @@ export interface PdsEntry {
   updatedAt: number;
 }
 
+export interface TimeTableEntry {
+  date: string;                       // 'YYYY-MM-DD' (local)
+  plan: Record<number, string>;       // hour(8~19) → 계획
+  do: Record<number, string>;         // hour(8~19) → 실행
+  updatedAt: number;
+}
+
+export interface DevDashboardConfig {
+  githubToken: string;
+  jiraDomain: string;                 // e.g. 'your-team.atlassian.net'
+  jiraEmail: string;
+  jiraToken: string;
+  sentryHost: string;                 // 'sentry.io' | 'de.sentry.io'
+  sentryOrg: string;                  // organization slug
+  sentryToken: string;
+}
+
 export interface LinkItem {
   id: string;
   name: string;

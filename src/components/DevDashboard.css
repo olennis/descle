@@ -1,0 +1,475 @@
+.dd-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.dd-icon-btn {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  border: 1px solid var(--color-border-light);
+  border-radius: 7px;
+  background: var(--color-card-bg);
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.dd-icon-btn:hover:not(:disabled),
+.dd-icon-btn.is-active {
+  background: var(--color-hover-bg);
+  border-color: var(--color-hover-border);
+  color: var(--color-primary);
+}
+
+.dd-icon-btn:disabled {
+  cursor: default;
+}
+
+.dd-icon-btn svg {
+  width: 14px;
+  height: 14px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 2;
+}
+
+.dd-icon-btn.is-spinning svg {
+  animation: dd-spin 0.8s linear infinite;
+}
+
+@keyframes dd-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ── tabs ─────────────────────────────────────────── */
+
+.dd-tabs {
+  display: flex;
+  gap: 2px;
+  margin-bottom: 14px;
+  padding: 3px;
+  border: 1px solid var(--color-border-light);
+  border-radius: 10px;
+  background: var(--color-surface);
+}
+
+.dd-tab {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 6px 8px;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  color: var(--color-text-muted);
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.dd-tab:hover {
+  color: var(--color-text-secondary);
+}
+
+.dd-tab.is-active {
+  background: var(--color-white);
+  color: var(--color-text);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+}
+
+.dd-tab-badge {
+  min-width: 18px;
+  padding: 0 5px;
+  border-radius: var(--radius-pill);
+  background: var(--color-badge-bg);
+  color: var(--color-badge-text);
+  font-size: 10px;
+  line-height: 16px;
+  font-variant-numeric: tabular-nums;
+}
+
+.dd-tab-badge.is-error {
+  background: var(--color-offline-bg);
+  color: var(--color-offline-text);
+}
+
+.dd-connect {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 24px 0;
+  color: var(--color-text-muted);
+  font-size: 13px;
+}
+
+/* ── KPI tiles ────────────────────────────────────── */
+
+.dd-kpis {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.dd-kpi {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 12px;
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-small);
+  background: var(--color-white);
+}
+
+.dd-kpi-value {
+  font-family: var(--font-headline);
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--color-text);
+  font-variant-numeric: tabular-nums;
+}
+
+.dd-kpi-label {
+  font-size: 11px;
+  color: var(--color-text-muted);
+}
+
+.dd-kpi.is-accent .dd-kpi-value {
+  color: var(--color-accent);
+}
+
+.dd-kpi.is-warn .dd-kpi-value {
+  color: var(--color-next-label);
+}
+
+.dd-kpi.is-danger .dd-kpi-value {
+  color: var(--color-p0);
+}
+
+/* ── groups & lists ───────────────────────────────── */
+
+.dd-group + .dd-group {
+  margin-top: 18px;
+}
+
+.dd-group-title {
+  margin-bottom: 8px;
+  font-family: var(--font-headline);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+  color: var(--color-text-secondary);
+}
+
+.dd-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  list-style: none;
+}
+
+.dd-item {
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-small);
+  background: var(--color-white);
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.dd-item:hover {
+  background: var(--color-hover-bg);
+  border-color: var(--color-hover-border);
+}
+
+.dd-item-main {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  padding: 9px 10px;
+  color: var(--color-text);
+  font-size: 13px;
+  text-decoration: none;
+}
+
+.dd-item-title {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dd-key,
+.dd-repo {
+  flex-shrink: 0;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.dd-repo {
+  font-weight: 500;
+  max-width: 40%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dd-status-dot {
+  flex-shrink: 0;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--color-text-muted);
+}
+
+.dd-status-dot.is-indeterminate {
+  background: var(--color-accent);
+}
+
+.dd-status-dot.is-done {
+  background: var(--color-success);
+}
+
+.dd-pill {
+  flex-shrink: 0;
+  max-width: 88px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding: 2px 7px;
+  border-radius: var(--radius-pill);
+  font-size: 10px;
+  font-weight: 600;
+  background: var(--color-surface);
+  color: var(--color-text-secondary);
+}
+
+.dd-pill.is-indeterminate {
+  background: var(--color-badge-bg);
+  color: var(--color-badge-text);
+}
+
+.dd-pr-icon {
+  flex-shrink: 0;
+  width: 14px;
+  height: 14px;
+  fill: none;
+  stroke: var(--color-success);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 2;
+}
+
+.dd-pr-icon.is-draft {
+  stroke: var(--color-text-muted);
+}
+
+.dd-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  padding: 0 10px 8px 25px;
+}
+
+.dd-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 7px;
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-pill);
+  background: var(--color-card-bg);
+  color: var(--color-text-secondary);
+  font-size: 11px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.dd-chip:hover {
+  border-color: var(--color-hover-border);
+  color: var(--color-primary);
+}
+
+.dd-chip .dd-pr-icon {
+  width: 11px;
+  height: 11px;
+}
+
+.dd-empty,
+.dd-error {
+  padding: 10px 0;
+  font-size: 13px;
+  color: var(--color-text-muted);
+}
+
+.dd-error {
+  padding: 8px 10px;
+  border-radius: var(--radius-small);
+  background: var(--color-offline-bg);
+  color: var(--color-offline-text);
+  font-size: 12px;
+}
+
+/* ── sentry rows ──────────────────────────────────── */
+
+.dd-item-main.is-stacked {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 4px;
+}
+
+.dd-item-line,
+.dd-item-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.dd-item-meta {
+  padding-left: 15px;
+}
+
+.dd-culprit {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--color-text-muted);
+  font-size: 11px;
+}
+
+.dd-stat {
+  flex-shrink: 0;
+  color: var(--color-text-secondary);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+
+.dd-level-dot {
+  flex-shrink: 0;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--color-text-muted);
+}
+
+.dd-level-dot.is-fatal,
+.dd-level-dot.is-error {
+  background: var(--color-p0);
+}
+
+.dd-level-dot.is-warning {
+  background: var(--color-p1);
+}
+
+/* ── settings ─────────────────────────────────────── */
+
+.dd-settings {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 20px;
+  padding: 16px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-card);
+  background: var(--color-white);
+}
+
+.dd-settings-hint {
+  font-size: 11px;
+  color: var(--color-text-muted);
+}
+
+.dd-settings-title {
+  margin-top: 4px;
+  font-family: var(--font-headline);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.dd-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.dd-field span {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+}
+
+.dd-field input {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-small);
+  outline: none;
+  background: var(--color-neutral);
+  color: var(--color-text);
+  font-family: var(--font-body);
+  font-size: 13px;
+  transition: border-color 0.15s, box-shadow 0.15s, background 0.15s;
+}
+
+.dd-field input:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-hover-bg);
+  background: var(--color-white);
+}
+
+.dd-settings-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.dd-btn-ghost,
+.dd-btn-primary {
+  padding: 7px 14px;
+  border-radius: var(--radius-small);
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.dd-btn-ghost {
+  border: 1px solid var(--color-border);
+  background: transparent;
+  color: var(--color-text-muted);
+}
+
+.dd-btn-primary {
+  border: none;
+  background: var(--color-primary);
+  color: #fff;
+}
+
+.dd-btn-primary:hover:not(:disabled) {
+  background: var(--color-secondary);
+}
+
+.dd-btn-primary:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
