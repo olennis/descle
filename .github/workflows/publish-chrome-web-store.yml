@@ -1,9 +1,7 @@
 name: Publish to Chrome Web Store
 
+# secret(CWS_*) 설정 전까지는 수동 실행만 허용한다. 자동 배포를 켜려면 push 트리거를 다시 추가.
 on:
-  push:
-    branches:
-      - main
   workflow_dispatch:
 
 permissions:
