@@ -44,7 +44,8 @@ export function useChromeStorage<T>(
           selfUpdate.current = false;
           return;
         }
-        setValue(changes[key].newValue);
+        // key별 타입은 호출부의 getter/setter와 같은 T라고 보장된다.
+        setValue(changes[key].newValue as T);
       }
     };
     chrome.storage.onChanged.addListener(listener);

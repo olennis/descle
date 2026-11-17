@@ -70,6 +70,57 @@ function countFilled(record: Record<number, string>): number {
   return HOURS.filter((h) => record[h]?.trim()).length;
 }
 
+type Match = 'match' | 'diff' | null;
+
+// 비교용 정규화: 앞뒤 공백·연속 공백·대소문자 차이는 같은 것으로 본다.
+function normalize(text: string): string {
+  return text.trim().replace(/\s+/g, ' ').toLowerCase();
+}
+
+// 실행이 기록된 칸만 판정한다. 계획이 비어 있는데 실행이 있으면 '계획 외' → diff.
+function getMatch(plan: string, done: string): Match {
+  if (!done.trim()) return null;
+  return normalize(plan) === normalize(done) ? 'match' : 'diff';
+}
+
+function escapeCell(text: string): string {
+  return text.replace(/\\/g, '\\\\').replace(/\|/g, '\\|').trim();
+}
+
+function buildMarkdown(
+  dateKey: string,
+  entry: TimeTableEntry,
+  eventsByHour: Map<number, CalendarEvent[]>,
+): string {
+  const date = fromDateKey(dateKey);
+  const weekday = date.toLocaleDateString('ko-KR', { weekday: 'short' });
+  let matched = 0;
+  let changed = 0;
+
+  const rows = HOURS.map((hour) => {
+    const plan = entry.plan[hour] ?? '';
+    const done = entry.do[hour] ?? '';
+    const events = (eventsByHour.get(hour) ?? []).map((e) => `📅 ${formatTime(e.start)} ${escapeCell(e.summary)}`);
+    const planCell = [...events, escapeCell(plan)].filter(Boolean).join('<br>');
+    const match = getMatch(plan, done);
+    if (match === 'match') matched += 1;
+    if (match === 'diff') changed += 1;
+    const mark = match === 'match' ? '✅' : match === 'diff' ? '🔀' : '';
+    return `| ${formatHour(hour)} | ${planCell} | ${escapeCell(done)} | ${mark} |`;
+  });
+
+  return [
+    `## ⏱ Time Table · ${dateKey} (${weekday})`,
+    '',
+    '| 시간 | Plan | Do | |',
+    '| --- | --- | --- | :-: |',
+    ...rows,
+    '',
+    `> 계획 ${countFilled(entry.plan)} · 실행 ${countFilled(entry.do)} · ✅ 계획대로 ${matched} · 🔀 변경 ${changed}`,
+    '',
+  ].join('\n');
+}
+
 function useCurrentHour(): number {
   const [hour, setHour] = useState(() => new Date().getHours());
   useEffect(() => {
@@ -119,6 +170,32 @@ export default function TimeTable({ isOnboarding }: { isOnboarding?: boolean }) 
 
   const planCount = countFilled(entry.plan);
   const doCount = countFilled(entry.do);
+  const matchStats = useMemo(() => {
+    let match = 0;
+    let diff = 0;
+    for (const hour of HOURS) {
+      const result = getMatch(entry.plan[hour] ?? '', entry.do[hour] ?? '');
+      if (result === 'match') match += 1;
+      if (result === 'diff') diff += 1;
+    }
+    return { match, diff };
+  }, [entry]);
+
+  const [copyState, setCopyState] = useState<'idle' | 'copied' | 'error'>('idle');
+  useEffect(() => {
+    if (copyState === 'idle') return;
+    const timer = window.setTimeout(() => setCopyState('idle'), 2000);
+    return () => window.clearTimeout(timer);
+  }, [copyState]);
+
+  const handleExport = useCallback(async () => {
+    try {
+      await navigator.clipboard.writeText(buildMarkdown(selectedDate, entry, eventsByHour));
+      setCopyState('copied');
+    } catch {
+      setCopyState('error');
+    }
+  }, [selectedDate, entry, eventsByHour]);
 
   const updateCell = useCallback((track: Track, hour: number, value: string) => {
     if (isOnboarding) return;
@@ -146,6 +223,21 @@ export default function TimeTable({ isOnboarding }: { isOnboarding?: boolean }) 
           </h1>
         </div>
 
+        <div className="tt-header-actions">
+        <button
+          type="button"
+          className={`tt-export${copyState !== 'idle' ? ` is-${copyState}` : ''}`}
+          onClick={() => void handleExport()}
+          disabled={disabled || !!isOnboarding}
+          title="Obsidian에 붙여넣을 수 있는 Markdown 표로 클립보드에 복사"
+        >
+          {copyState === 'copied' ? (
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5" /></svg>
+          ) : (
+            <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2" /><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" /></svg>
+          )}
+          {copyState === 'copied' ? '복사됨' : copyState === 'error' ? '복사 실패' : 'Markdown 복사'}
+        </button>
         <div className="tt-date-controls" aria-label="날짜 이동">
           <button type="button" onClick={() => setSelectedDate((date) => moveDate(date, -1))} aria-label="이전 날짜">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6" /></svg>
@@ -156,6 +248,7 @@ export default function TimeTable({ isOnboarding }: { isOnboarding?: boolean }) 
           <button type="button" onClick={() => setSelectedDate((date) => moveDate(date, 1))} aria-label="다음 날짜">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6" /></svg>
           </button>
+        </div>
         </div>
       </header>
 
@@ -180,6 +273,7 @@ export default function TimeTable({ isOnboarding }: { isOnboarding?: boolean }) 
           const plan = entry.plan[hour] ?? '';
           const done = entry.do[hour] ?? '';
           const events = eventsByHour.get(hour) ?? [];
+          const match = isOnboarding ? null : getMatch(plan, done);
 
           return (
             <div key={hour} className={`tt-row${isNow ? ' is-now' : ''}${isPast ? ' is-past' : ''}`}>
@@ -201,7 +295,7 @@ export default function TimeTable({ isOnboarding }: { isOnboarding?: boolean }) 
                 />
               </div>
 
-              <div className="tt-cell is-do">
+              <div className={`tt-cell is-do${match ? ` is-${match}` : ''}`}>
                 <input
                   type="text"
                   value={done}
@@ -210,6 +304,18 @@ export default function TimeTable({ isOnboarding }: { isOnboarding?: boolean }) 
                   disabled={disabled}
                   aria-label={`${formatHour(hour)} 실행`}
                 />
+                {match && (
+                  <span
+                    className={`tt-match is-${match}`}
+                    title={match === 'match' ? '계획대로 실행' : plan.trim() ? `계획과 다름 — 계획: ${plan}` : '계획에 없던 실행'}
+                  >
+                    {match === 'match' ? (
+                      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5" /></svg>
+                    ) : (
+                      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 3h5v5" /><path d="M4 20 21 3" /><path d="M21 16v5h-5" /><path d="m15 15 6 6" /><path d="M4 4l5 5" /></svg>
+                    )}
+                  </span>
+                )}
                 {plan.trim() && !done.trim() && !isOnboarding && (
                   <button
                     type="button"
@@ -227,8 +333,14 @@ export default function TimeTable({ isOnboarding }: { isOnboarding?: boolean }) 
       </div>
 
       <footer className="tt-footer">
-        <span className="tt-saved-dot" />
-        {entry.updatedAt ? '작성 내용은 자동으로 저장됩니다' : '시간별 계획을 먼저 적어보세요'}
+        <span className="tt-legend">
+          <span className="tt-legend-item is-match">계획대로 {matchStats.match}</span>
+          <span className="tt-legend-item is-diff">변경 {matchStats.diff}</span>
+        </span>
+        <span className="tt-saved">
+          <span className="tt-saved-dot" />
+          {entry.updatedAt ? '작성 내용은 자동으로 저장됩니다' : '시간별 계획을 먼저 적어보세요'}
+        </span>
       </footer>
     </div>
   );

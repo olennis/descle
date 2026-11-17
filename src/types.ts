@@ -42,6 +42,15 @@ export interface DevDashboardConfig {
   sentryToken: string;
 }
 
+export interface FastLink {
+  id: string;
+  name: string;
+  subtitle: string;
+  url: string;
+}
+
+export const MAX_FAST_LINKS = 3;
+
 export interface LinkItem {
   id: string;
   name: string;

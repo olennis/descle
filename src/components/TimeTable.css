@@ -1,4 +1,7 @@
 .timetable {
+  display: flex;
+  flex: 1 0 auto;
+  flex-direction: column;
   width: min(100%, 860px);
   margin: 0 auto;
 }
@@ -22,6 +25,8 @@
 
 .tt-date {
   display: flex;
+  flex-wrap: wrap;
+  white-space: nowrap;
   align-items: baseline;
   gap: 10px;
   color: var(--color-text);
@@ -35,6 +40,60 @@
   font-size: 12px;
   font-weight: 600;
   letter-spacing: 0.08em;
+}
+
+.tt-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tt-export {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 40px;
+  padding: 0 12px;
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  background: var(--color-card-bg);
+  color: var(--color-text-secondary);
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.tt-export:hover:not(:disabled) {
+  border-color: var(--color-hover-border);
+  background: var(--color-hover-bg);
+  color: var(--color-primary);
+}
+
+.tt-export:disabled {
+  cursor: default;
+  opacity: 0.42;
+}
+
+.tt-export.is-copied {
+  border-color: var(--color-success);
+  color: var(--color-tag-review-text);
+}
+
+.tt-export.is-error {
+  color: var(--color-offline-text);
+}
+
+.tt-export svg {
+  width: 15px;
+  height: 15px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 2;
 }
 
 .tt-date-controls {
@@ -91,9 +150,12 @@
 
 /* ── board: 공통 시간축 + PLAN / DO 두 개의 캘린더 ── */
 
+/* 컬럼 높이를 꽉 채우도록 행을 균등 분배한다. 화면이 낮으면 최소 42px 유지 후 스크롤. */
 .tt-board {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  flex: 1;
+  grid-template-rows: auto;
+  grid-auto-rows: minmax(42px, 1fr);
 }
 
 .tt-row {
@@ -266,6 +328,54 @@
   stroke-width: 2.5;
 }
 
+/* 계획 vs 실행 일치 여부 */
+.tt-cell.is-do.is-match,
+.tt-cell.is-do.is-diff {
+  padding-right: 34px;
+}
+
+.tt-cell.is-do.is-match {
+  background: color-mix(in srgb, var(--color-success) 9%, var(--color-card-bg));
+  box-shadow: inset 3px 0 0 var(--color-success);
+}
+
+.tt-cell.is-do.is-diff {
+  background: color-mix(in srgb, var(--color-p1) 11%, var(--color-card-bg));
+  box-shadow: inset 3px 0 0 var(--color-p1);
+}
+
+.tt-match {
+  position: absolute;
+  top: 50%;
+  right: 8px;
+  display: grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  transform: translateY(-50%);
+}
+
+.tt-match.is-match {
+  background: color-mix(in srgb, var(--color-success) 18%, transparent);
+  color: var(--color-tag-review-text);
+}
+
+.tt-match.is-diff {
+  background: color-mix(in srgb, var(--color-p1) 22%, transparent);
+  color: color-mix(in srgb, var(--color-p1) 70%, var(--color-text));
+}
+
+.tt-match svg {
+  width: 12px;
+  height: 12px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 2.5;
+}
+
 /* 지난 시간 */
 .tt-row.is-past .tt-hour {
   color: var(--color-timeline-past);
@@ -289,11 +399,44 @@
 .tt-footer {
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 7px;
+  justify-content: space-between;
+  gap: 12px;
   padding: 16px 0 4px;
   color: var(--color-text-muted);
   font-size: 11px;
+}
+
+.tt-legend,
+.tt-saved {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.tt-legend {
+  gap: 12px;
+}
+
+.tt-legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-variant-numeric: tabular-nums;
+}
+
+.tt-legend-item::before {
+  content: '';
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+}
+
+.tt-legend-item.is-match::before {
+  background: var(--color-success);
+}
+
+.tt-legend-item.is-diff::before {
+  background: var(--color-p1);
 }
 
 .tt-saved-dot {
@@ -308,5 +451,38 @@
     align-items: flex-start;
     flex-direction: column;
     gap: 14px;
+  }
+}
+
+/* 컬럼 리사이즈로 타임테이블 폭이 좁아질 때 (viewport가 아닌 컬럼 폭 기준) */
+@container (max-width: 640px) {
+  .tt-header {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .tt-track-title small {
+    display: none;
+  }
+}
+
+@container (max-width: 480px) {
+  .tt-row {
+    grid-template-columns: 40px minmax(0, 1fr) minmax(0, 1fr);
+    column-gap: 6px;
+  }
+
+  .tt-track-title {
+    gap: 6px;
+    padding: 8px;
+  }
+
+  .tt-track-letter {
+    display: none;
+  }
+
+  .tt-export {
+    padding: 0 10px;
   }
 }

@@ -1,0 +1,235 @@
+.fast-links {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.fl-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 20px;
+  border: 1.5px solid var(--color-accent);
+  border-radius: 12px;
+  background: var(--color-card-bg);
+  color: var(--color-text);
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.fl-card:hover {
+  background: var(--color-hover-bg);
+}
+
+.fl-icon {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+}
+
+.fl-chevron,
+.fl-add svg,
+.fl-actions svg {
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.fl-initial {
+  display: grid;
+  place-items: center;
+  background: var(--color-favicon-bg);
+  color: var(--color-favicon-text);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.fl-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.fl-name {
+  overflow: hidden;
+  color: var(--color-text);
+  font-family: var(--font-headline);
+  font-size: 15px;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.fl-sub {
+  overflow: hidden;
+  margin-top: 2px;
+  color: var(--color-text-muted);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.fl-chevron {
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+  color: #7C3AED;
+  stroke-width: 2.5;
+}
+
+/* 사용자 링크: hover 시 chevron 자리에 수정/삭제 노출 */
+.fl-card-wrap {
+  position: relative;
+}
+
+.fl-actions {
+  position: absolute;
+  top: 50%;
+  right: 14px;
+  display: flex;
+  gap: 4px;
+  opacity: 0;
+  transform: translateY(-50%);
+  transition: opacity 0.15s;
+}
+
+.fl-card-wrap:hover .fl-actions,
+.fl-actions:focus-within {
+  opacity: 1;
+}
+
+.fl-card-wrap:hover .fl-chevron {
+  visibility: hidden;
+}
+
+.fl-actions button {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  border: 1px solid var(--color-border-light);
+  border-radius: 7px;
+  background: var(--color-card-bg);
+  color: var(--color-text-muted);
+  cursor: pointer;
+}
+
+.fl-actions button:hover {
+  border-color: var(--color-hover-border);
+  color: var(--color-primary);
+}
+
+.fl-actions svg {
+  width: 13px;
+  height: 13px;
+  stroke-width: 2;
+}
+
+.fl-add {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 20px;
+  border: 1.5px dashed var(--color-border);
+  border-radius: 12px;
+  background: transparent;
+  color: var(--color-text-muted);
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+}
+
+.fl-add:hover {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+}
+
+.fl-add svg {
+  width: 16px;
+  height: 16px;
+  stroke-width: 2;
+}
+
+.fl-add-count {
+  margin-left: auto;
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+
+.fl-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 14px;
+  border: 1.5px solid var(--color-accent);
+  border-radius: 12px;
+  background: var(--color-card-bg);
+}
+
+.fl-form input {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-small);
+  outline: none;
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-family: var(--font-body);
+  font-size: 13px;
+}
+
+.fl-form input:focus {
+  border-color: var(--color-accent);
+}
+
+.fl-form-error {
+  color: var(--color-offline-text);
+  font-size: 11px;
+}
+
+.fl-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 6px;
+}
+
+.fl-btn-ghost,
+.fl-btn-primary {
+  padding: 6px 12px;
+  border-radius: var(--radius-small);
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.fl-btn-ghost {
+  border: 1px solid var(--color-border);
+  background: transparent;
+  color: var(--color-text-secondary);
+}
+
+.fl-btn-primary {
+  border: 1px solid var(--color-accent);
+  background: var(--color-accent);
+  color: #fff;
+}
+
+.fl-btn-primary:disabled {
+  cursor: default;
+  opacity: 0.45;
+}
+
+/* Schedule와 QuickLinks 사이에 끼므로 .section + .section 간격을 대신 맞춘다 */
+.fast-links + .section {
+  margin-top: 28px;
+}

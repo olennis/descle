@@ -2,6 +2,7 @@ import { useRef, useCallback, useState, useEffect } from 'react';
 import Schedule from './components/Schedule';
 import TimeTable from './components/TimeTable';
 import QuickLinks from './components/QuickLinks';
+import FastLinks from './components/FastLinks';
 import ServiceStatus from './components/ServiceStatus';
 import DevDashboard from './components/DevDashboard';
 import Onboarding from './components/Onboarding';
@@ -14,6 +15,8 @@ import './styles/tokens.css';
 import './styles/layout.css';
 
 const MIN_SIDE = 240;
+// 타임테이블(가운데)은 PLAN/DO 두 칸이 들어가야 하므로 사이드보다 넓은 최소폭을 둔다.
+const MIN_CENTER = 360;
 const DEFAULT_RATIO = { left: 0.25, right: 0.25 };
 const STORAGE_KEY = 'dashboardColumnRatio';
 const THEME_KEY = 'dashboardTheme';
@@ -103,10 +106,10 @@ export default function App() {
       const x = e.clientX - rect.left;
 
       if (dragging.current === 'left') {
-        const newLeft = Math.max(MIN_SIDE / totalW, Math.min(x / totalW, 1 - ratio.right - MIN_SIDE / totalW));
+        const newLeft = Math.max(MIN_SIDE / totalW, Math.min(x / totalW, 1 - ratio.right - MIN_CENTER / totalW));
         setRatio(prev => ({ ...prev, left: newLeft }));
       } else {
-        const newRight = Math.max(MIN_SIDE / totalW, Math.min((totalW - x) / totalW, 1 - ratio.left - MIN_SIDE / totalW));
+        const newRight = Math.max(MIN_SIDE / totalW, Math.min((totalW - x) / totalW, 1 - ratio.left - MIN_CENTER / totalW));
         setRatio(prev => ({ ...prev, right: newRight }));
       }
     };
@@ -204,6 +207,7 @@ export default function App() {
       >
         <section className="col-schedule">
           <Schedule isOnboarding={isOnboarding} />
+          <FastLinks isOnboarding={isOnboarding} />
           <QuickLinks isOnboarding={isOnboarding} />
         </section>
 

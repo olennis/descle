@@ -1,5 +1,5 @@
 import {
-  Todo, LinkGroup, CalendarEvent, Routine, PdsEntry, TimeTableEntry, DevDashboardConfig,
+  Todo, LinkGroup, FastLink, CalendarEvent, Routine, PdsEntry, TimeTableEntry, DevDashboardConfig,
   DEFAULT_LINK_GROUPS,
 } from '../types';
 import type { DevDashboardData } from './devDashboard';
@@ -12,6 +12,7 @@ const STORAGE_KEYS = {
   devDashboardConfig: 'devDashboardConfig',
   devDashboardCache: 'devDashboardCache',
   linkGroups: 'linkGroups',
+  fastLinks: 'fastLinks',
   calendarEvents: 'calendarEvents',
   calendarLastFetched: 'calendarLastFetched',
   oauthConnected: 'oauthConnected',
@@ -20,40 +21,48 @@ const STORAGE_KEYS = {
   onboardingCompleted: 'onboardingCompleted',
 } as const;
 
+type StorageKey = (typeof STORAGE_KEYS)[keyof typeof STORAGE_KEYS];
+
+// chrome.storage.local.get()은 값 타입을 모르므로({[key]: unknown}) 키별 타입을 여기서 한 번만 단언한다.
+async function getItem<T>(key: StorageKey, fallback: T): Promise<T> {
+  const result = await chrome.storage.local.get(key);
+  return (result[key] as T | undefined) ?? fallback;
+}
+
+async function setItem<T>(key: StorageKey, value: T): Promise<void> {
+  await chrome.storage.local.set({ [key]: value });
+}
+
 export async function getTodos(): Promise<Todo[]> {
-  const result = await chrome.storage.local.get(STORAGE_KEYS.todos);
-  return result[STORAGE_KEYS.todos] ?? [];
+  return getItem(STORAGE_KEYS.todos, []);
 }
 
 export async function setTodos(todos: Todo[]): Promise<void> {
-  await chrome.storage.local.set({ [STORAGE_KEYS.todos]: todos });
+  await setItem(STORAGE_KEYS.todos, todos);
 }
 
 export async function getRoutines(): Promise<Routine[]> {
-  const result = await chrome.storage.local.get(STORAGE_KEYS.routines);
-  return result[STORAGE_KEYS.routines] ?? [];
+  return getItem(STORAGE_KEYS.routines, []);
 }
 
 export async function setRoutines(routines: Routine[]): Promise<void> {
-  await chrome.storage.local.set({ [STORAGE_KEYS.routines]: routines });
+  await setItem(STORAGE_KEYS.routines, routines);
 }
 
 export async function getPdsEntries(): Promise<Record<string, PdsEntry>> {
-  const result = await chrome.storage.local.get(STORAGE_KEYS.pdsEntries);
-  return result[STORAGE_KEYS.pdsEntries] ?? {};
+  return getItem(STORAGE_KEYS.pdsEntries, {});
 }
 
 export async function setPdsEntries(entries: Record<string, PdsEntry>): Promise<void> {
-  await chrome.storage.local.set({ [STORAGE_KEYS.pdsEntries]: entries });
+  await setItem(STORAGE_KEYS.pdsEntries, entries);
 }
 
 export async function getTimeTableEntries(): Promise<Record<string, TimeTableEntry>> {
-  const result = await chrome.storage.local.get(STORAGE_KEYS.timeTableEntries);
-  return result[STORAGE_KEYS.timeTableEntries] ?? {};
+  return getItem(STORAGE_KEYS.timeTableEntries, {});
 }
 
 export async function setTimeTableEntries(entries: Record<string, TimeTableEntry>): Promise<void> {
-  await chrome.storage.local.set({ [STORAGE_KEYS.timeTableEntries]: entries });
+  await setItem(STORAGE_KEYS.timeTableEntries, entries);
 }
 
 export const EMPTY_DEV_DASHBOARD_CONFIG: DevDashboardConfig = {
@@ -67,27 +76,34 @@ export const EMPTY_DEV_DASHBOARD_CONFIG: DevDashboardConfig = {
 };
 
 export async function getDevDashboardConfig(): Promise<DevDashboardConfig> {
-  const result = await chrome.storage.local.get(STORAGE_KEYS.devDashboardConfig);
-  return { ...EMPTY_DEV_DASHBOARD_CONFIG, ...(result[STORAGE_KEYS.devDashboardConfig] ?? {}) };
+  // 이전 버전에서 저장된 설정에 새 필드(sentry*)가 없을 수 있어 기본값과 병합한다.
+  const stored = await getItem<Partial<DevDashboardConfig>>(STORAGE_KEYS.devDashboardConfig, {});
+  return { ...EMPTY_DEV_DASHBOARD_CONFIG, ...stored };
 }
 
 export async function setDevDashboardConfig(config: DevDashboardConfig): Promise<void> {
-  await chrome.storage.local.set({ [STORAGE_KEYS.devDashboardConfig]: config });
+  await setItem(STORAGE_KEYS.devDashboardConfig, config);
 }
 
 export async function getDevDashboardCache(): Promise<DevDashboardData | null> {
-  const result = await chrome.storage.local.get(STORAGE_KEYS.devDashboardCache);
-  return result[STORAGE_KEYS.devDashboardCache] ?? null;
+  return getItem(STORAGE_KEYS.devDashboardCache, null);
 }
 
 export async function setDevDashboardCache(data: DevDashboardData | null): Promise<void> {
-  await chrome.storage.local.set({ [STORAGE_KEYS.devDashboardCache]: data });
+  await setItem(STORAGE_KEYS.devDashboardCache, data);
+}
+
+export async function getFastLinks(): Promise<FastLink[]> {
+  return getItem(STORAGE_KEYS.fastLinks, []);
+}
+
+export async function setFastLinks(links: FastLink[]): Promise<void> {
+  await setItem(STORAGE_KEYS.fastLinks, links);
 }
 
 export async function getLinkGroups(): Promise<LinkGroup[]> {
-  const result = await chrome.storage.local.get(STORAGE_KEYS.linkGroups);
-  const groups = result[STORAGE_KEYS.linkGroups];
-  if (!groups || groups.length === 0) {
+  const groups = await getItem<LinkGroup[]>(STORAGE_KEYS.linkGroups, []);
+  if (groups.length === 0) {
     await setLinkGroups(DEFAULT_LINK_GROUPS);
     return DEFAULT_LINK_GROUPS;
   }
@@ -95,61 +111,55 @@ export async function getLinkGroups(): Promise<LinkGroup[]> {
 }
 
 export async function setLinkGroups(groups: LinkGroup[]): Promise<void> {
-  await chrome.storage.local.set({ [STORAGE_KEYS.linkGroups]: groups });
+  await setItem(STORAGE_KEYS.linkGroups, groups);
 }
 
 export async function getCalendarEvents(): Promise<CalendarEvent[]> {
-  const result = await chrome.storage.local.get(STORAGE_KEYS.calendarEvents);
-  return result[STORAGE_KEYS.calendarEvents] ?? [];
+  return getItem(STORAGE_KEYS.calendarEvents, []);
 }
 
 export async function setCalendarEvents(events: CalendarEvent[]): Promise<void> {
-  await chrome.storage.local.set({ [STORAGE_KEYS.calendarEvents]: events });
+  await setItem(STORAGE_KEYS.calendarEvents, events);
 }
 
 export async function getCalendarLastFetched(): Promise<number | null> {
-  const result = await chrome.storage.local.get(STORAGE_KEYS.calendarLastFetched);
-  return result[STORAGE_KEYS.calendarLastFetched] ?? null;
+  return getItem(STORAGE_KEYS.calendarLastFetched, null);
 }
 
 export async function setCalendarLastFetched(timestamp: number): Promise<void> {
-  await chrome.storage.local.set({ [STORAGE_KEYS.calendarLastFetched]: timestamp });
+  await setItem(STORAGE_KEYS.calendarLastFetched, timestamp);
 }
 
 export async function getOAuthConnected(): Promise<boolean> {
-  const result = await chrome.storage.local.get(STORAGE_KEYS.oauthConnected);
-  return result[STORAGE_KEYS.oauthConnected] ?? false;
+  return getItem(STORAGE_KEYS.oauthConnected, false);
 }
 
 export async function setOAuthConnected(connected: boolean): Promise<void> {
-  await chrome.storage.local.set({ [STORAGE_KEYS.oauthConnected]: connected });
+  await setItem(STORAGE_KEYS.oauthConnected, connected);
 }
 
 export async function getUserEmail(): Promise<string | null> {
-  const result = await chrome.storage.local.get(STORAGE_KEYS.userEmail);
-  return result[STORAGE_KEYS.userEmail] ?? null;
+  return getItem(STORAGE_KEYS.userEmail, null);
 }
 
 export async function setUserEmail(email: string | null): Promise<void> {
-  await chrome.storage.local.set({ [STORAGE_KEYS.userEmail]: email });
+  await setItem(STORAGE_KEYS.userEmail, email);
 }
 
 export async function getUserProfileImage(): Promise<string | null> {
-  const result = await chrome.storage.local.get(STORAGE_KEYS.userProfileImage);
-  return result[STORAGE_KEYS.userProfileImage] ?? null;
+  return getItem(STORAGE_KEYS.userProfileImage, null);
 }
 
 export async function setUserProfileImage(url: string | null): Promise<void> {
-  await chrome.storage.local.set({ [STORAGE_KEYS.userProfileImage]: url });
+  await setItem(STORAGE_KEYS.userProfileImage, url);
 }
 
 export async function getOnboardingCompleted(): Promise<boolean> {
-  const result = await chrome.storage.local.get(STORAGE_KEYS.onboardingCompleted);
-  return result[STORAGE_KEYS.onboardingCompleted] ?? false;
+  return getItem(STORAGE_KEYS.onboardingCompleted, false);
 }
 
 export async function setOnboardingCompleted(completed: boolean): Promise<void> {
-  await chrome.storage.local.set({ [STORAGE_KEYS.onboardingCompleted]: completed });
+  await setItem(STORAGE_KEYS.onboardingCompleted, completed);
 }
 
 export { STORAGE_KEYS };

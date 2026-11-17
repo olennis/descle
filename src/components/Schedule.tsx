@@ -74,7 +74,6 @@ export default function Schedule({ isOnboarding }: { isOnboarding?: boolean }) {
   const effectiveEmail = isOnboarding
     ? 'id@email.com'
     : isDev && !oauthConnected ? DEV_MOCK_EMAIL : userEmail;
-  const isSpaceCloudUser = effectiveEmail?.endsWith('@spacecloud.kr') ?? false;
 
   const events = isOnboarding
     ? createOnboardingMockEvents()
@@ -341,55 +340,6 @@ export default function Schedule({ isOnboarding }: { isOnboarding?: boolean }) {
               })}
             </div>
           )}
-
-          {/* Meeting Room Booking + \uBE44\uBC88\uD1A1\uD1A1 */}
-          {isSpaceCloudUser && (
-            <>
-              <a
-                href="https://valueup-meetingroom.test.spacecloud.kr/"
-                target="_blank"
-                rel="noopener noreferrer"
-                style={meetingRoomLinkStyle}
-              >
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#7C3AED" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
-                  <path d="M3 21V7a2 2 0 012-2h6a2 2 0 012 2v14" />
-                  <path d="M13 21V3a2 2 0 012-2h4a2 2 0 012 2v18" />
-                  <path d="M7 9h2" />
-                  <path d="M7 13h2" />
-                  <path d="M17 5h2" />
-                  <path d="M17 9h2" />
-                  <path d="M17 13h2" />
-                </svg>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={meetingRoomLabelStyle}>{'\uD68C\uC758\uC2E4 \uC608\uC57D'}</div>
-                  <div style={meetingRoomSubLabelStyle}>BOOK A MEETING ROOM</div>
-                </div>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#7C3AED" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
-                  <path d="M9 18l6-6-6-6" />
-                </svg>
-              </a>
-
-              {/* 비번톡톡 — 회의실 예약과 동일한 카드 UI (아이콘은 자물쇠=비밀번호 연상) */}
-              <a
-                href="https://pass-opal-six.vercel.app/"
-                target="_blank"
-                rel="noopener noreferrer"
-                style={{ ...meetingRoomLinkStyle, marginTop: 12 }}
-              >
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#7C3AED" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
-                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-                  <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-                </svg>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={meetingRoomLabelStyle}>{'비번톡톡'}</div>
-                  <div style={meetingRoomSubLabelStyle}>PASSWORD MANAGER</div>
-                </div>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#7C3AED" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
-                  <path d="M9 18l6-6-6-6" />
-                </svg>
-              </a>
-            </>
-          )}
         </>
       )}
     </div>
@@ -571,36 +521,4 @@ const timelineStatusStyle: React.CSSProperties = {
   letterSpacing: 0.3,
   marginTop: 4,
   textTransform: 'uppercase' as const,
-};
-
-/* ─── Meeting Room ─── */
-
-const meetingRoomLinkStyle: React.CSSProperties = {
-  display: 'flex',
-  alignItems: 'center',
-  gap: 12,
-  marginTop: 24,
-  padding: '16px 20px',
-  border: '1.5px solid var(--color-accent)',
-  borderRadius: 12,
-  background: 'var(--color-card-bg)',
-  textDecoration: 'none',
-  color: 'var(--color-text)',
-  cursor: 'pointer',
-};
-
-const meetingRoomLabelStyle: React.CSSProperties = {
-  fontSize: 15,
-  fontWeight: 700,
-  fontFamily: 'var(--font-headline)',
-  color: 'var(--color-text)',
-};
-
-const meetingRoomSubLabelStyle: React.CSSProperties = {
-  fontSize: 10,
-  fontWeight: 500,
-  color: 'var(--color-text-muted)',
-  letterSpacing: 0.5,
-  textTransform: 'uppercase' as const,
-  marginTop: 2,
 };

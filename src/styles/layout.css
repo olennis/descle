@@ -67,6 +67,11 @@ body {
   padding-bottom: 64px;
 }
 
+/* 타임테이블은 컬럼 높이를 꽉 채우므로 하단 여백을 줄인다 */
+.dashboard > .col-timetable {
+  padding-bottom: 20px;
+}
+
 .resize-handle {
   width: 4px;
   cursor: col-resize;
@@ -95,6 +100,9 @@ body {
 }
 
 .col-timetable {
+  container-type: inline-size;
+  display: flex;
+  flex-direction: column;
   background: var(--color-neutral);
   border-left: 1px solid var(--color-border);
   border-right: 1px solid var(--color-border);
@@ -103,6 +111,7 @@ body {
 }
 
 .col-dashboard {
+  container-type: inline-size;
   padding: 24px 32px 24px 24px;
 }
 

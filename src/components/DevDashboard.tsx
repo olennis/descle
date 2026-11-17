@@ -18,8 +18,10 @@ import './DevDashboard.css';
 const CACHE_TTL_MS = 3 * 60 * 1000;
 const STALE_CHECK_MS = 60 * 1000;
 const TAB_KEY = 'devDashboardTab';
+const VIEW_KEY = 'devDashboardView';
 
 type Tab = 'jira' | 'github' | 'sentry';
+type View = 'tabs' | 'cards';
 
 const TABS: Array<{ id: Tab; label: string }> = [
   { id: 'jira', label: 'Jira' },
@@ -33,6 +35,13 @@ function loadTab(): Tab {
     if (raw === 'jira' || raw === 'github' || raw === 'sentry') return raw;
   } catch { /* ignore */ }
   return 'jira';
+}
+
+function loadView(): View {
+  try {
+    if (localStorage.getItem(VIEW_KEY) === 'cards') return 'cards';
+  } catch { /* ignore */ }
+  return 'tabs';
 }
 
 const ONBOARDING_DOMAIN = 'your-team.atlassian.net';
@@ -92,10 +101,15 @@ export default function DevDashboard({ isOnboarding }: { isOnboarding?: boolean 
   const [refreshing, setRefreshing] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [tab, setTab] = useState<Tab>(loadTab);
+  const [view, setView] = useState<View>(loadView);
 
   useEffect(() => {
     try { localStorage.setItem(TAB_KEY, tab); } catch { /* ignore */ }
   }, [tab]);
+
+  useEffect(() => {
+    try { localStorage.setItem(VIEW_KEY, view); } catch { /* ignore */ }
+  }, [view]);
 
   const enabled: Record<Tab, boolean> = {
     jira: !!isOnboarding || hasJiraConfig(config),
@@ -193,6 +207,90 @@ export default function DevDashboard({ isOnboarding }: { isOnboarding?: boolean 
 
   const loadingText = refreshing ? 'Loading...' : '데이터 없음';
 
+  const renderPanel = (id: Tab) => (
+    !enabled[id] ? (
+      <div className="dd-connect">
+        <p>{TABS.find((t) => t.id === id)?.label} 연동이 필요합니다</p>
+        {!settingsOpen && (
+          <button type="button" className="dd-btn-primary" onClick={() => setSettingsOpen(true)}>
+            연동하기
+          </button>
+        )}
+      </div>
+    ) : tabErrors[id] ? (
+      <p className="dd-error">{tabErrors[id]}</p>
+    ) : id === 'jira' ? (
+      <>
+        <div className="dd-kpis">
+          <Kpi label="할 일" value={data?.jira ? issues.filter((i) => i.statusCategory === 'new').length : null} />
+          <Kpi label="진행 중" value={data?.jira ? issues.filter((i) => i.statusCategory === 'indeterminate').length : null} tone="accent" />
+        </div>
+        <div className="dd-group">
+          <div className="dd-group-title">내 이슈</div>
+          {!data?.jira ? (
+            <p className="dd-empty">{loadingText}</p>
+          ) : issues.length === 0 ? (
+            <p className="dd-empty">할당된 미완료 이슈가 없습니다</p>
+          ) : (
+            <ul className="dd-list">
+              {issues.map((issue) => (
+                <IssueRow key={issue.key} issue={issue} pulls={pullsByJiraKey.get(issue.key) ?? []} />
+              ))}
+            </ul>
+          )}
+        </div>
+      </>
+    ) : id === 'github' ? (
+      <>
+        <div className="dd-kpis">
+          <Kpi label="리뷰 요청" value={data?.github ? reviewRequests.length : null} tone={reviewRequests.length > 0 ? 'warn' : undefined} />
+          <Kpi label="내 PR" value={data?.github ? myPulls.length : null} />
+        </div>
+        <PullGroup
+          title="리뷰 요청"
+          pulls={reviewRequests}
+          empty="대기 중인 리뷰가 없습니다"
+          loading={!data?.github}
+          loadingText={loadingText}
+          jiraDomain={enabled.jira ? jiraDomain : null}
+        />
+        <PullGroup
+          title="내 Pull Request"
+          pulls={myPulls}
+          empty="열린 PR이 없습니다"
+          loading={!data?.github}
+          loadingText={loadingText}
+          jiraDomain={enabled.jira ? jiraDomain : null}
+        />
+      </>
+    ) : (
+      <>
+        <div className="dd-kpis">
+          <Kpi label="미해결 (24h)" value={data?.sentry ? data.sentry.total : null} />
+          <Kpi
+            label="fatal · error"
+            value={data?.sentry ? sentryIssues.filter((i) => i.level === 'fatal' || i.level === 'error').length : null}
+            tone={sentryIssues.some((i) => i.level === 'fatal') ? 'danger' : undefined}
+          />
+        </div>
+        <div className="dd-group">
+          <div className="dd-group-title">이벤트 많은 순</div>
+          {!data?.sentry ? (
+            <p className="dd-empty">{loadingText}</p>
+          ) : sentryIssues.length === 0 ? (
+            <p className="dd-empty">최근 24시간 미해결 이슈가 없습니다</p>
+          ) : (
+            <ul className="dd-list">
+              {sentryIssues.map((issue) => (
+                <SentryRow key={issue.id} issue={issue} />
+              ))}
+            </ul>
+          )}
+        </div>
+      </>
+    )
+  );
+
   return (
     <div className="section dev-dashboard">
       <div className="section-header">
@@ -207,11 +305,33 @@ export default function DevDashboard({ isOnboarding }: { isOnboarding?: boolean 
               className={`dd-icon-btn${refreshing ? ' is-spinning' : ''}`}
               onClick={() => void refresh(config)}
               disabled={refreshing}
-              title="새로고침"
+              title={data ? `새로고침 (마지막 갱신 ${formatFetchedAt(data.fetchedAt)})` : '새로고침'}
             >
               <svg viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-3-6.7L21 8" /><path d="M21 3v5h-5" /></svg>
             </button>
           )}
+          <div className="dd-view-toggle" role="radiogroup" aria-label="보기 방식">
+            <button
+              type="button"
+              role="radio"
+              aria-checked={view === 'tabs'}
+              className={`dd-icon-btn${view === 'tabs' ? ' is-active' : ''}`}
+              onClick={() => setView('tabs')}
+              title="탭 뷰"
+            >
+              <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2" /><path d="M3 9h18" /><path d="M9 4v5" /></svg>
+            </button>
+            <button
+              type="button"
+              role="radio"
+              aria-checked={view === 'cards'}
+              className={`dd-icon-btn${view === 'cards' ? ' is-active' : ''}`}
+              onClick={() => setView('cards')}
+              title="카드 뷰"
+            >
+              <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5" /><rect x="14" y="3" width="7" height="7" rx="1.5" /><rect x="3" y="14" width="7" height="7" rx="1.5" /><rect x="14" y="14" width="7" height="7" rx="1.5" /></svg>
+            </button>
+          </div>
           {!isOnboarding && (
             <button
               type="button"
@@ -232,114 +352,51 @@ export default function DevDashboard({ isOnboarding }: { isOnboarding?: boolean 
         <SettingsForm initial={config} onSave={handleSave} onCancel={() => setSettingsOpen(false)} />
       )}
 
-      <div className="dd-tabs" role="tablist">
-        {TABS.map(({ id, label }) => (
-          <button
-            key={id}
-            type="button"
-            role="tab"
-            aria-selected={tab === id}
-            className={`dd-tab${tab === id ? ' is-active' : ''}`}
-            onClick={() => setTab(id)}
-          >
-            {label}
-            {tabErrors[id] ? (
-              <span className="dd-tab-badge is-error">!</span>
-            ) : enabled[id] && tabCounts[id] !== null ? (
-              <span className="dd-tab-badge">{tabCounts[id]}</span>
-            ) : null}
-          </button>
-        ))}
-      </div>
-
-      <div className="dd-panel" role="tabpanel">
-        {!enabled[tab] ? (
-          <div className="dd-connect">
-            <p>{TABS.find((t) => t.id === tab)?.label} 연동이 필요합니다</p>
-            {!settingsOpen && (
-              <button type="button" className="dd-btn-primary" onClick={() => setSettingsOpen(true)}>
-                연동하기
+      {view === 'tabs' ? (
+        <>
+          <div className="dd-tabs" role="tablist">
+            {TABS.map(({ id, label }) => (
+              <button
+                key={id}
+                type="button"
+                role="tab"
+                aria-selected={tab === id}
+                className={`dd-tab${tab === id ? ' is-active' : ''}`}
+                onClick={() => setTab(id)}
+              >
+                {label}
+                <TabBadge error={tabErrors[id]} count={enabled[id] ? tabCounts[id] : null} />
               </button>
-            )}
+            ))}
           </div>
-        ) : tabErrors[tab] ? (
-          <p className="dd-error">{tabErrors[tab]}</p>
-        ) : tab === 'jira' ? (
-          <>
-            <div className="dd-kpis">
-              <Kpi label="할 일" value={data?.jira ? issues.filter((i) => i.statusCategory === 'new').length : null} />
-              <Kpi label="진행 중" value={data?.jira ? issues.filter((i) => i.statusCategory === 'indeterminate').length : null} tone="accent" />
-            </div>
-            <div className="dd-group">
-              <div className="dd-group-title">내 이슈</div>
-              {!data?.jira ? (
-                <p className="dd-empty">{loadingText}</p>
-              ) : issues.length === 0 ? (
-                <p className="dd-empty">할당된 미완료 이슈가 없습니다</p>
-              ) : (
-                <ul className="dd-list">
-                  {issues.map((issue) => (
-                    <IssueRow key={issue.key} issue={issue} pulls={pullsByJiraKey.get(issue.key) ?? []} />
-                  ))}
-                </ul>
-              )}
-            </div>
-          </>
-        ) : tab === 'github' ? (
-          <>
-            <div className="dd-kpis">
-              <Kpi label="리뷰 요청" value={data?.github ? reviewRequests.length : null} tone={reviewRequests.length > 0 ? 'warn' : undefined} />
-              <Kpi label="내 PR" value={data?.github ? myPulls.length : null} />
-            </div>
-            <PullGroup
-              title="리뷰 요청"
-              pulls={reviewRequests}
-              empty="대기 중인 리뷰가 없습니다"
-              loading={!data?.github}
-              loadingText={loadingText}
-              jiraDomain={enabled.jira ? jiraDomain : null}
-            />
-            <PullGroup
-              title="내 Pull Request"
-              pulls={myPulls}
-              empty="열린 PR이 없습니다"
-              loading={!data?.github}
-              loadingText={loadingText}
-              jiraDomain={enabled.jira ? jiraDomain : null}
-            />
-          </>
-        ) : (
-          <>
-            <div className="dd-kpis">
-              <Kpi label="미해결 (24h)" value={data?.sentry ? data.sentry.total : null} />
-              <Kpi
-                label="fatal · error"
-                value={data?.sentry ? sentryIssues.filter((i) => i.level === 'fatal' || i.level === 'error').length : null}
-                tone={sentryIssues.some((i) => i.level === 'fatal') ? 'danger' : undefined}
-              />
-            </div>
-            <div className="dd-group">
-              <div className="dd-group-title">이벤트 많은 순</div>
-              {!data?.sentry ? (
-                <p className="dd-empty">{loadingText}</p>
-              ) : sentryIssues.length === 0 ? (
-                <p className="dd-empty">최근 24시간 미해결 이슈가 없습니다</p>
-              ) : (
-                <ul className="dd-list">
-                  {sentryIssues.map((issue) => (
-                    <SentryRow key={issue.id} issue={issue} />
-                  ))}
-                </ul>
-              )}
-            </div>
-          </>
-        )}
-      </div>
+          <div className="dd-panel" role="tabpanel">
+            {renderPanel(tab)}
+          </div>
+        </>
+      ) : (
+        <div className="dd-cards">
+          {TABS.map(({ id, label }) => (
+            <section key={id} className={`dd-card${enabled[id] ? '' : ' is-disabled'}`}>
+              <header className="dd-card-header">
+                <span className="dd-card-title">{label}</span>
+                <TabBadge error={tabErrors[id]} count={enabled[id] ? tabCounts[id] : null} />
+              </header>
+              {renderPanel(id)}
+            </section>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
 
 /* ── sub components ──────────────────────────────────── */
+
+function TabBadge({ error, count }: { error: string | null; count: number | null }) {
+  if (error) return <span className="dd-tab-badge is-error" title={error}>!</span>;
+  if (count === null) return null;
+  return <span className="dd-tab-badge">{count}</span>;
+}
 
 function Kpi({ label, value, tone }: { label: string; value: number | null; tone?: 'accent' | 'warn' | 'danger' }) {
   return (

@@ -473,3 +473,61 @@
   opacity: 0.4;
   cursor: not-allowed;
 }
+
+/* ── view toggle + card view ──────────────────────── */
+
+.dd-view-toggle {
+  display: flex;
+  gap: 2px;
+}
+
+.dd-cards {
+  /* 카드 높이가 제각각이라 grid면 행 사이 빈 공간이 생긴다 → multi-column으로 masonry 배치.
+     우측 컬럼이 좁으면 1열, 리사이즈로 넓히면 2~3열. */
+  columns: 280px;
+  column-gap: 12px;
+}
+
+.dd-card {
+  break-inside: avoid;
+  margin-bottom: 12px;
+  min-width: 0;
+  padding: 14px;
+  border: 1px solid var(--color-border-light);
+  border-radius: 12px;
+  background: var(--color-card-bg);
+}
+
+.dd-card.is-disabled .dd-connect {
+  padding: 8px 0 4px;
+}
+
+.dd-card-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.dd-card-title {
+  color: var(--color-text);
+  font-family: var(--font-headline);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+}
+
+.dd-card .dd-kpis {
+  margin-bottom: 14px;
+}
+
+.dev-dashboard .section-title {
+  white-space: nowrap;
+}
+
+/* 우측 컬럼이 좁으면 제목이 줄바꿈되지 않도록 갱신 시각 배지를 숨긴다 (새로고침 버튼 title로 대체) */
+@container (max-width: 340px) {
+  .dd-header-actions .section-badge {
+    display: none;
+  }
+}
