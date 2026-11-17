@@ -105,7 +105,7 @@ async function hasOrigin(...origins: string[]): Promise<boolean> {
 /* ── GitHub ──────────────────────────────────────────── */
 
 async function searchPulls(token: string, query: string): Promise<GithubPull[]> {
-  const params = new URLSearchParams({ q: query, sort: 'updated', order: 'desc', per_page: '20' });
+  const params = new URLSearchParams({ q: query, sort: 'updated', order: 'desc', per_page: '50' });
   const res = await fetch(`${GITHUB_API}/search/issues?${params}`, {
     headers: {
       Authorization: `Bearer ${token}`,

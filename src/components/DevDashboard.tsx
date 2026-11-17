@@ -19,6 +19,7 @@ const CACHE_TTL_MS = 3 * 60 * 1000;
 const STALE_CHECK_MS = 60 * 1000;
 const TAB_KEY = 'devDashboardTab';
 const VIEW_KEY = 'devDashboardView';
+const GITHUB_ORG_KEY = 'devDashboardGithubOrg';
 
 type Tab = 'jira' | 'github' | 'sentry';
 type View = 'tabs' | 'cards';
@@ -77,6 +78,17 @@ const ONBOARDING_DATA: DevDashboardData = {
   sentryError: null,
 };
 
+function loadGithubOrg(): string | null {
+  try {
+    return localStorage.getItem(GITHUB_ORG_KEY);
+  } catch { /* ignore */ }
+  return null;
+}
+
+function getOwner(repo: string): string {
+  return repo.split('/')[0] ?? repo;
+}
+
 function formatFetchedAt(ts: number): string {
   return new Intl.DateTimeFormat(undefined, { hour: '2-digit', minute: '2-digit' }).format(ts);
 }
@@ -102,10 +114,19 @@ export default function DevDashboard({ isOnboarding }: { isOnboarding?: boolean 
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [tab, setTab] = useState<Tab>(loadTab);
   const [view, setView] = useState<View>(loadView);
+  // null = 전체. 데이터에서 사라진 org가 저장돼 있어도 지우지 않고 '전체'로 취급한다(다음 갱신에 다시 나타날 수 있음).
+  const [githubOrg, setGithubOrg] = useState<string | null>(loadGithubOrg);
 
   useEffect(() => {
     try { localStorage.setItem(TAB_KEY, tab); } catch { /* ignore */ }
   }, [tab]);
+
+  useEffect(() => {
+    try {
+      if (githubOrg) localStorage.setItem(GITHUB_ORG_KEY, githubOrg);
+      else localStorage.removeItem(GITHUB_ORG_KEY);
+    } catch { /* ignore */ }
+  }, [githubOrg]);
 
   useEffect(() => {
     try { localStorage.setItem(VIEW_KEY, view); } catch { /* ignore */ }
@@ -187,9 +208,21 @@ export default function DevDashboard({ isOnboarding }: { isOnboarding?: boolean 
     return map;
   }, [pulls]);
 
+  // org 목록: PR 수 많은 순. Jira↔PR 연결(pullsByJiraKey)은 필터와 무관하게 전체 PR 기준으로 유지한다.
+  const githubOrgs = useMemo(() => {
+    const counts = new Map<string, number>();
+    for (const pull of pulls) {
+      const owner = getOwner(pull.repo);
+      counts.set(owner, (counts.get(owner) ?? 0) + 1);
+    }
+    return [...counts].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
+  }, [pulls]);
+  const activeOrg = githubOrg && githubOrgs.some(([org]) => org === githubOrg) ? githubOrg : null;
+  const byOrg = (list: GithubPull[]) => (activeOrg ? list.filter((p) => getOwner(p.repo) === activeOrg) : list);
+
   const issues = data?.jira?.issues ?? [];
-  const myPulls = data?.github?.myPulls ?? [];
-  const reviewRequests = data?.github?.reviewRequests ?? [];
+  const myPulls = byOrg(data?.github?.myPulls ?? []);
+  const reviewRequests = byOrg(data?.github?.reviewRequests ?? []);
   const sentryIssues = data?.sentry?.issues ?? [];
 
   const tabCounts: Record<Tab, number | null> = {
@@ -242,6 +275,14 @@ export default function DevDashboard({ isOnboarding }: { isOnboarding?: boolean 
       </>
     ) : id === 'github' ? (
       <>
+        {githubOrgs.length > 1 && (
+          <div className="dd-org-filter" role="radiogroup" aria-label="Organization 필터">
+            <OrgChip label="전체" count={pulls.length} active={!activeOrg} onClick={() => setGithubOrg(null)} />
+            {githubOrgs.map(([org, count]) => (
+              <OrgChip key={org} label={org} count={count} active={activeOrg === org} onClick={() => setGithubOrg(org)} />
+            ))}
+          </div>
+        )}
         <div className="dd-kpis">
           <Kpi label="리뷰 요청" value={data?.github ? reviewRequests.length : null} tone={reviewRequests.length > 0 ? 'warn' : undefined} />
           <Kpi label="내 PR" value={data?.github ? myPulls.length : null} />
@@ -446,6 +487,22 @@ function SentryRow({ issue }: { issue: SentryIssue }) {
         </span>
       </a>
     </li>
+  );
+}
+
+function OrgChip({ label, count, active, onClick }: { label: string; count: number; active: boolean; onClick: () => void }) {
+  return (
+    <button
+      type="button"
+      role="radio"
+      aria-checked={active}
+      className={`dd-org-chip${active ? ' is-active' : ''}`}
+      onClick={onClick}
+      title={label}
+    >
+      <span className="dd-org-name">{label}</span>
+      <span className="dd-org-count">{count}</span>
+    </button>
   );
 }
 
